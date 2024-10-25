@@ -34,7 +34,7 @@ Occupancy-WebApp/
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/your-username/Occupancy-WebApp.git
+   git clone https://github.com/Just111n/computer_vision_space_occupancy_project.git
    cd Occupancy-WebApp
    ```
 
