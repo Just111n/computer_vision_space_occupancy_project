@@ -35,7 +35,7 @@ Occupancy-WebApp/
 
    ```bash
    git clone https://github.com/Just111n/computer_vision_space_occupancy_project.git
-   cd Occupancy-WebApp
+   cd computer_vision_space_occupancy_project
    ```
 
 2. **Create and Activate Conda Environment**:
