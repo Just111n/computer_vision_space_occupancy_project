@@ -7,7 +7,7 @@
 <body>
     <h2>Occupancy Analysis Results</h2>
     <p>Occupancy Count: {{ data.count }}</p>
-    <img src="{{ url_for('static', filename='uploads/' + image_filename) }}" alt="Processed Image">
+    <img src="{{ url_for('static', filename='outputs/output_' + image_filename) }}" alt="Processed Image">
     <a href="{{ url_for('home') }}">Go Back</a>
 </body>
 </html>
