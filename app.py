@@ -28,6 +28,8 @@ def process_image():
     # Save the uploaded image to the specified folder
     image_path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
     image.save(image_path)
+
+    print("Image saved to:", image_path)
     
     # Placeholder for image processing (occupancy analysis)
     # You can add your YOLO/CSRNet model processing here

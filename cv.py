@@ -4,6 +4,7 @@ import torch
 # Additional imports as needed (e.g., for YOLO, CSRNet)
 import time
 import numpy as np
+import os
 
 def load_model():
     """
@@ -106,6 +107,10 @@ def process_image_with_model(image_path, model):
     result_path_ls[2] = 'output_' + result_path_ls[2]
     result_path = "/".join(result_path_ls)
     print(result_path)
+
+    # Ensure the directory exists
+    output_dir = os.path.dirname(result_path)
+    os.makedirs(output_dir, exist_ok=True)  # Creates the directory if it doesn’t exist
 
     cv2.imwrite(result_path, image)
 
