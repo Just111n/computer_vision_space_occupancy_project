@@ -25,7 +25,7 @@ Occupancy-WebApp/
 
 ### Prerequisites
 
-- **Python** 3.8 or higher
+- **Python** 3.11
 - **Conda** for environment management
 - **Git** for version control
 
