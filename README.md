@@ -38,22 +38,33 @@ Occupancy-WebApp/
    cd computer_vision_space_occupancy_project
    ```
 
-2. **Create and Activate Conda Environment**:
-   - Run the following command to create and activate the virtual environment:
+2. **Create Virtual Environment**:
 
-     ```bash
-     conda env create -f environment.yml --name computer_vision_space_occupancy_project_env
-     conda activate computer_vision_space_occupancy_project_env
+   ```bash
+      python -m venv .venv
      ```
 
-3. **Install Dependencies**:
-   - If not using `environment.yml`, install dependencies directly from `requirements.txt`:
+3. **Activate Virtual Environment**:
+
+   On Windows:
+
+     ```bash
+      .venv\Scripts\activate  
+     ```
+
+   On macOS/Linux
+
+     ```bash
+      source .venv/bin/activate 
+     ```
+
+4. **Install Dependencies**:
 
      ```bash
      pip install -r requirements.txt
      ```
 
-4. **Run the Flask Application**:
+5. **Run the Flask Application**:
 
    ```bash
    python app.py
