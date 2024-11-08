@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Occupancy Analysis Results</title>
-</head>
-<body>
+  </head>
+  <body>
     <h2>Occupancy Analysis Results</h2>
-    <p>Occupancy Count: {{ data.count }}</p>
-    <img src="{{ url_for('static', filename='outputs/output_' + image_filename) }}" alt="Processed Image">
+    <p>Occupancy Count: {{ data.occupancy_data.count }}</p>
+    <p>Maximum capacity: {{ data.max_people }}</p>
+    <img
+      src="{{ url_for('static', filename='outputs/output_' + image_filename) }}"
+      alt="Processed Image"
+    />
     <a href="{{ url_for('home') }}">Go Back</a>
-</body>
+  </body>
 </html>
