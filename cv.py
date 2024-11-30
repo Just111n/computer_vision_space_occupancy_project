@@ -24,7 +24,7 @@ def load_model():
     print("Model loaded successfully.")
     return model
 
-def process_image_with_model(image_path, model):
+def process_image_with_model(image_path, model, max_capacity):
     """
     Process the image to analyze occupancy using the loaded model.
     
@@ -44,7 +44,7 @@ def process_image_with_model(image_path, model):
     if image is None:
         return # something?
     
-    # image = cv2.resize(image, (640,640))   # can try diff dimensions
+    # image = cv2.resize(image, (1000,600))   # can try diff dimensions
     # TODO: find params that work
     blob = cv2.dnn.blobFromImage(image,scalefactor= 1/255,size=(640,640),mean=[0,0,0],swapRB= True, crop= False)
     net.setInput(blob)
@@ -106,7 +106,7 @@ def process_image_with_model(image_path, model):
     result_path_ls[1] = 'outputs'
     result_path_ls[2] = 'output_' + result_path_ls[2]
     result_path = "/".join(result_path_ls)
-    print(result_path)
+    # print(result_path)
 
     # Ensure the directory exists
     output_dir = os.path.dirname(result_path)
@@ -120,4 +120,4 @@ def process_image_with_model(image_path, model):
     print(f"Processed image at {result_path} and found {occupancy_count} individuals.")
     
     # Example of returning data (expand this with heatmaps or density maps if needed)
-    return {'count': occupancy_count}
+    return {'count': occupancy_count, 'percentage': occupancy_count/max_capacity*100}
