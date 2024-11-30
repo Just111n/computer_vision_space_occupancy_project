@@ -30,12 +30,12 @@ def process_image():
     image.save(image_path)
 
     print("Image saved to:", image_path)
-    max_people = request.form.get("max_people")
+    max_people = int(request.form.get("max_people"))
     
     # Placeholder for image processing (occupancy analysis)
     # You can add your YOLO/CSRNet model processing here
     # Use the model to process the image
-    occupancy_data = process_image_with_model(image_path, model)
+    occupancy_data = process_image_with_model(image_path, model, max_people)
 
     # TODO Put Spatial Occupancy calculations here
 

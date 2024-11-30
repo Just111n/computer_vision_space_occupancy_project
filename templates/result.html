@@ -8,6 +8,7 @@
     <h2>Occupancy Analysis Results</h2>
     <p>Occupancy Count: {{ data.occupancy_data.count }}</p>
     <p>Maximum capacity: {{ data.max_people }}</p>
+    <p>Percentage capacity: {{ data.occupancy_data.percentage }}%</p>
     <img
       src="{{ url_for('static', filename='outputs/output_' + image_filename) }}"
       alt="Processed Image"
