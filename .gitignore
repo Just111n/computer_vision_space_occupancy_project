@@ -4,3 +4,6 @@
 # Environments
 .env
 .venv
+
+# Data
+mit_indoor/
