@@ -6,4 +6,5 @@
 .venv
 
 # Data
-mit_indoor/
+**/mit_indoor/
+**/data/
