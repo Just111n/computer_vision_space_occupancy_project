@@ -16,11 +16,37 @@ Each dataset (train/val/test) consists of images, corresponding masks and class 
 
 For the purpose of this project, the script will also default to extracting data from the `meeting_room` sub-directory.
 
+The `../mit_indoor/` directory (or any input data directory) is expected to have the following structure:
+
+```text
+mit_indoor/
+|
+├─  Images/
+|   ├─ .../
+|   ├─ meeting_room/
+|   ├─ .../
+|
+├─  Annotations/
+|   ├─ .../
+|   ├─ meeting_room/
+|   ├─ .../
+|
+|
+model_training/
+|
+├─  build_dataset.py
+├─  README.md
+├─  data/
+├─  ...
+```
+
+To build default dataset:
+
 ```bash
 python build_dataset.py 
 ```
 
-To build a custom dataset, you may use the following command:
+To build a custom dataset:
 
 ```bash
 python build_dataset.py --src <src_dir_path> --sub <sub_dir_name>
@@ -29,20 +55,25 @@ python build_dataset.py --src <src_dir_path> --sub <sub_dir_name>
 The script will store the generated datasets in the `./data` directory. The directory will have the following structure:
 
 ```text
-data/
+model_training/
 |
-├─ images/
-|   ├─ train/
-|   ├─ val/
-|   ├─ test/
-|
-├─ mappings/
-|   ├─ train/
-|   ├─ val/
-|
-├─ masks/
-|   ├─ train/
-|   ├─ val/
+├─  build_dataset.py
+├─  README.md
+├─  ...
+├─  data/
+|   |
+|   ├─ images/
+|   |   ├─ train/
+|   |   ├─ val/
+|   |   ├─ test/
+|   |
+|   ├─ mappings/
+|   |   ├─ train/
+|   |   ├─ val/
+|   |
+|   ├─ masks/
+|   |   ├─ train/
+|   |   ├─ val/
 ```
 
 ### Step 2: Train the Model
