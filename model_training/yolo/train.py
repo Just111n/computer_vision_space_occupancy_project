@@ -144,13 +144,13 @@ if __name__ == '__main__':
 
     create_yaml_config('../data/images/train', '../data/images/val', classes_ls)
 
-    base_metrics = base_model.val(data='data.yaml', epochs=10, batch=16, save=False, name='yolo11n')
+    base_metrics = base_model.val(data='data.yaml', epochs=20, batch=16, save=False, name='yolo11n')
     print('Original:', base_metrics.box.maps)
 
     # device = 'cpu'
     device = 0      # gpu
     fine_tuned_model = YOLO('yolo11n.pt')
-    fine_tuned_model.train(data='data.yaml', epochs=10, batch=16, save=False, name='custom_yolo11n', device=device)
-    fine_tuned_metrics = fine_tuned_model.val(data='data.yaml', epochs=10, batch=16, save=False, name='custom_yolo11n')
+    fine_tuned_model.train(data='data.yaml', epochs=20, batch=16, save=False, name='custom_yolo11n', device=device)
+    fine_tuned_metrics = fine_tuned_model.val(data='data.yaml', epochs=20, batch=16, save=False, name='custom_yolo11n')
     print('Finetuned:', fine_tuned_metrics.box.maps)
     fine_tuned_model.export(format='onnx')

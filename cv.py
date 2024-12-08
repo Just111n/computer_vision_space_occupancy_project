@@ -14,10 +14,12 @@ def load_model():
     # Example placeholder for loading model, replace with actual model loading code
     model = None  # Replace with YOLO or CSRNet model load logic
     # TODO: return model here
-    model_dir = "./ml_models/yolo/"
-    net = cv2.dnn.readNetFromONNX(model_dir + "yolov5n.onnx")
-    file = open(model_dir + "coco.txt","r")
-    classes = file.read().split('\n')
+    model_dir = "./ml_models/yolo"
+    model_fn = "custom_yolo11n.onnx"
+    classes_fn = 'coco.txt'
+    net = cv2.dnn.readNetFromONNX(os.path.join(model_dir, model_fn))
+    classes_file = open(os.path.join(model_dir, classes_fn), "r")
+    classes = classes_file.read().split('\n')
 
     model = (net, classes)
 
