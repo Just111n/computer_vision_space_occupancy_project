@@ -33,7 +33,7 @@ def unzip(ls: list[tuple]):
     # return lists as a tuple
     return tuple(list(e) for e in zip(*ls))
 
-def get_train_val_test_filepaths(src_dir: str, img_subdir: str, ann_subdir: str, dset_name: str) -> tuple[list[str]]:
+def get_train_val_test_filepaths(src_dir: str, img_subdir: str, ann_subdir: str, dset_name: str) -> tuple[list[str], list[str], list[str], list[str], list[str]]:
     """
     Retrieves file paths for training, validation, and testing images and annotations from the mit_indoor dataset, and splits the
     training set into train and validation subsets.
@@ -105,7 +105,9 @@ def batch_read_images(img_fp_ls: list[str]) -> tuple[list[str], list[np.ndarray]
     if num_invalid > 0:
         print(f'Removed {num_invalid} invalid image' + ('s' if num_invalid > 1 else ''))
     
-    return unzip(fp_img_ls)
+    out_fp_ls, out_img_ls = unzip(fp_img_ls)
+
+    return out_fp_ls, out_img_ls
 
 def xml_to_mask_map(img: np.ndarray, ann_xml: str) -> tuple[np.ndarray, dict[int, str]]:
     """
@@ -189,7 +191,9 @@ def batch_xml_to_mask_map(img_ls: list[np.ndarray], xml_fp_ls: list[str]) -> tup
 
     # apply xml_to_mask_map for every image-xml path pair
     mask_map_ls = [xml_to_mask_map(img, xml) for img, xml in zip(img_ls, xml_fp_ls)]
-    return unzip(mask_map_ls)
+
+    out_mask_ls, out_map_ls = unzip(mask_map_ls)
+    return out_mask_ls, out_map_ls
 
 def clean_mappings(map_ls: list[dict[int, str]]):
     """
@@ -336,8 +340,8 @@ if __name__ == '__main__':
     sub = '' if args.sub is None else args.sub
 
     # define variables
-    src_dir = '..\\mit_indoor' if use_default else src
-    dst_dir = '.\\data'
+    src_dir = '../mit_indoor' if use_default else src
+    dst_dir = './data'
     img_dir = 'Images'
     ann_dir = 'Annotations'
     dset_name = 'meeting_room' if use_default else sub
@@ -384,13 +388,13 @@ if __name__ == '__main__':
 
     # save images, masks, and mappings
     print('Saving images and mappings...')
-    batch_save_images(train_img_ls, train_out_img_fn_ls, os.path.join(dst_dir, r'images\train'))
-    batch_save_images(train_mask_ls, train_out_mask_fn_ls, os.path.join(dst_dir, r'masks\train'))
-    batch_save_mappings(train_map_ls, train_out_map_fn_ls, os.path.join(dst_dir, r'mappings\train'))
-    batch_save_images(val_img_ls, val_out_img_fn_ls, os.path.join(dst_dir, r'images\val'))
-    batch_save_images(val_mask_ls, val_out_mask_fn_ls, os.path.join(dst_dir, r'masks\val'))
-    batch_save_mappings(val_map_ls, val_out_map_fn_ls, os.path.join(dst_dir, r'mappings\val'))
-    batch_save_images(test_img_ls, test_out_img_fn_ls, os.path.join(dst_dir, r'images\test'))
+    batch_save_images(train_img_ls, train_out_img_fn_ls, os.path.join(dst_dir, 'images/train'))
+    batch_save_images(train_mask_ls, train_out_mask_fn_ls, os.path.join(dst_dir, 'masks/train'))
+    batch_save_mappings(train_map_ls, train_out_map_fn_ls, os.path.join(dst_dir, 'mappings/train'))
+    batch_save_images(val_img_ls, val_out_img_fn_ls, os.path.join(dst_dir, 'images/val'))
+    batch_save_images(val_mask_ls, val_out_mask_fn_ls, os.path.join(dst_dir, 'masks/val'))
+    batch_save_mappings(val_map_ls, val_out_map_fn_ls, os.path.join(dst_dir, 'mappings/val'))
+    batch_save_images(test_img_ls, test_out_img_fn_ls, os.path.join(dst_dir, 'images/test'))
 
     print(f'Successfully created dataset in {dst_dir}')
 

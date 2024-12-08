@@ -129,10 +129,10 @@ if __name__ == '__main__':
     metrics = model.val(data='data.yaml', epochs=10, batch=16)
     print('Original:', metrics.box.maps)
 
-    names = batch_get_filenames_from_dir(r'..\data\images')
-    images = batch_read_images_from_dir(r'..\data\images')
-    masks = batch_read_masks_from_dir(r'..\data\masks')
-    mappings = batch_read_mappings_from_dir(r'..\data\mappings')
+    names = batch_get_filenames_from_dir('../data/images')
+    images = batch_read_images_from_dir('../data/images')
+    masks = batch_read_masks_from_dir('../data/masks')
+    mappings = batch_read_mappings_from_dir('../data/mappings')
 
     data_unique_classes = get_unique_class_names_from_map(mappings)
     yolo_unique_classes = list(model.names.values())
@@ -141,9 +141,9 @@ if __name__ == '__main__':
     classes_dict = {i: cls for i, cls in enumerate(classes_ls)}
     
     for dset in masks.keys():
-        write_yolo_annotations(names[dset], masks[dset], mappings[dset], rf'..\data\labels\{dset}', classes_dict)
+        write_yolo_annotations(names[dset], masks[dset], mappings[dset], f'../data/labels/{dset}', classes_dict)
 
-    create_yaml_config(r'..\data\images\train', r'..\data\images\val', classes_ls)
+    create_yaml_config('../data/images/train', '../data/images/val', classes_ls)
 
     model.train(data='data.yaml', epochs=10, batch=16, save=False, name='custom_yolo11n')
     metrics = model.val(data='data.yaml', epochs=10, batch=16)
