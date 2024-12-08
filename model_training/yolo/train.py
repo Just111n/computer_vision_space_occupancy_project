@@ -124,31 +124,31 @@ def create_yaml_config(img_train_path: str, img_val_path: str, class_ls: list[st
 
 if __name__ == '__main__':
     # model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
-    model = YOLO('yolo11n.pt')
-    print(type(model))
+    base_model = YOLO('yolo11n.pt')
 
-    names = batch_get_filenames_from_dir('../data/images')
-    images = batch_read_images_from_dir('../data/images')
-    masks = batch_read_masks_from_dir('../data/masks')
-    mappings = batch_read_mappings_from_dir('../data/mappings')
+    shutil.copytree('../data', './data', dirs_exist_ok=True)
+
+    names = batch_get_filenames_from_dir('./data/images')
+    images = batch_read_images_from_dir('./data/images')
+    masks = batch_read_masks_from_dir('./data/masks')
+    mappings = batch_read_mappings_from_dir('./data/mappings')
 
     data_unique_classes = get_unique_class_names_from_map(mappings)
-    yolo_unique_classes = list(model.names.values())
+    yolo_unique_classes = list(base_model.names.values())
     new_classes = sorted(list(set(data_unique_classes) - set(yolo_unique_classes)))
     classes_ls = yolo_unique_classes + new_classes
     classes_dict = {i: cls for i, cls in enumerate(classes_ls)}
     
     for dset in masks.keys():
-        write_yolo_annotations(names[dset], masks[dset], mappings[dset], f'../data/labels/{dset}', classes_dict)
-
-    shutil.copytree('../data', './data', dirs_exist_ok=True)
+        write_yolo_annotations(names[dset], masks[dset], mappings[dset], f'./data/labels/{dset}', classes_dict)
 
     create_yaml_config('../data/images/train', '../data/images/val', classes_ls)
 
-    metrics = model.val(data='data.yaml', epochs=10, batch=16)
-    print('Original:', metrics.box.maps)
+    base_metrics = base_model.val(data='data.yaml', epochs=10, batch=16, save=False, name='yolo11n')
+    print('Original:', base_metrics.box.maps)
 
-    model.train(data='data.yaml', epochs=10, batch=16, save=False, name='custom_yolo11n')
-    metrics = model.val(data='data.yaml', epochs=10, batch=16)
-    print('Finetuned:', metrics.box.maps)
-    # model.export(format='onnx')
+    fine_tuned_model = YOLO('yolo11n.pt')
+    fine_tuned_model.train(data='data.yaml', epochs=10, batch=16, save=False, name='custom_yolo11n')
+    fine_tuned_metrics = fine_tuned_model.val(data='data.yaml', epochs=10, batch=16, save=False, name='custom_yolo11n')
+    print('Finetuned:', fine_tuned_metrics.box.maps)
+    fine_tuned_model.export(format='onnx')
