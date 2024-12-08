@@ -146,12 +146,12 @@ if __name__ == '__main__':
 
     create_yaml_config('../data/images/train', '../data/images/val', classes_ls)
 
-    base_metrics = base_model.val(data='data.yaml', epochs=20, batch=32, save=False, name='yolo11n')
-    print('Original:', base_metrics.map)
+    base_val_results = base_model.val(data='data.yaml', epochs=20, batch=32, save=False, name='yolo11n')
+    print('Original:', base_val_results.map)
 
     device = 0 if torch.cuda.is_available() else 'cpu'     # use GPU if available, otherwise use CPU
-    fine_tuned_model = YOLO('yolo11n.pt')
-    fine_tuned_model.train(data='data.yaml', epochs=20, batch=16, save=True, name='custom_yolo11n', device=device)
-    fine_tuned_metrics = fine_tuned_model.val(data='data.yaml', epochs=20, batch=32, save=False, name='custom_yolo11n')
-    print('Finetuned:', fine_tuned_metrics.map)
-    # fine_tuned_model.export(format='torch')
+    custom_model = YOLO('yolo11n.pt')
+    custom_model.train(data='data.yaml', epochs=20, batch=16, save=True, name='custom_yolo11n', device=device)
+    custom_val_results = custom_model.val(data='data.yaml', epochs=20, batch=32, save=False, name='custom_yolo11n')
+    print('Finetuned:', custom_val_results.map)
+    # custom_model.export(format='torch')

@@ -365,6 +365,7 @@ if __name__ == '__main__':
         'inside_bus',
         'library',
         'tv_studio',
+        'computerroom',
     ]
 
 
