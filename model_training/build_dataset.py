@@ -135,18 +135,23 @@ def xml_to_mask_map(img: np.ndarray, ann_xml: str) -> tuple[np.ndarray, dict[int
         # get object name
         obj_name = obj.find('name').text.strip()
 
-        # get the corresponding polygon as a list of points
-        polygon = []
-        for pt in obj.find('polygon').findall('pt'):
-            # get point coordinates
-            x = int(pt.find('x').text)
-            y = int(pt.find('y').text)
+        # check if object is related to chair or person (singular)
+        is_chair = ('chair' in obj_name and 'chairs' not in obj_name) or obj_name == 'chiar'
+        is_person = 'person' in obj_name
 
-            # add point to polygon
-            polygon.append((x,y))
+        if is_chair or is_person:
+            # get the corresponding polygon as a list of points
+            polygon = []
+            for pt in obj.find('polygon').findall('pt'):
+                # get point coordinates
+                x = int(pt.find('x').text)
+                y = int(pt.find('y').text)
 
-        # add object to list of objects as a dict
-        objects.append({'name': obj_name, 'polygon': polygon})
+                # add point to polygon
+                polygon.append((x,y))
+
+            # add object to list of objects as a dict
+            objects.append({'name': obj_name, 'polygon': polygon})
 
     # initialise mask with shape of original image
     mask = np.zeros(img.shape[:-1], dtype=np.uint8)
@@ -208,17 +213,22 @@ def clean_mappings(map_ls: list[dict[int, str]]):
             # change class to 'chair'
             if 'chair' in class_name and 'chairs' not in class_name and class_name != 'chair':
                 obj[polygon_id] = 'chair'
+            if class_name == 'chiar':
+                obj[polygon_id] = 'chair'
 
             # if polygon contains a single person (not multiple)
             # change class to 'person'
-            if 'person' in class_name and 'person' not in class_name and class_name != 'person':
+            if 'person' in class_name  and class_name != 'person':
                 obj[polygon_id] = 'person'
 
         # update changes to mapping
         out_map_ls[i] = obj
 
     return out_map_ls
-    
+
+def remove_unlabeled_data(img_ls: list[np.ndarray], mask_ls: list[np.ndarray], map_ls: list[dict[int, str]]):
+    new_zip = [(img, mask, mapping) for img, mask, mapping in zip(img_ls, mask_ls, map_ls)if len(mapping) > 0]
+    return unzip(new_zip)
 
 def append_file_ext(filename_ls: list[str], ext_ls: list[str]):
     """
@@ -350,6 +360,10 @@ if __name__ == '__main__':
     train_mask_ls, train_map_ls = batch_xml_to_mask_map(train_img_ls, train_ann_fp_ls)
     val_mask_ls, val_map_ls = batch_xml_to_mask_map(val_img_ls, val_ann_fp_ls)
 
+    # remove data points where mapping is empty
+    train_img_ls, train_mask_ls, train_map_ls = remove_unlabeled_data(train_img_ls, train_mask_ls, train_map_ls)
+    val_img_ls, val_mask_ls, val_map_ls = remove_unlabeled_data(val_img_ls, val_mask_ls, val_map_ls)
+
     # clean polygon mappings
     print('Cleaning mappings...')
     train_map_ls = clean_mappings(train_map_ls)
@@ -364,6 +378,9 @@ if __name__ == '__main__':
     train_out_img_fn_ls, train_out_mask_fn_ls, train_out_map_fn_ls = append_file_ext(train_out_names, ['jpg', 'png', 'json'])
     val_out_img_fn_ls, val_out_mask_fn_ls, val_out_map_fn_ls = append_file_ext(val_out_names, ['jpg', 'png', 'json'])
     test_out_img_fn_ls = append_file_ext(test_out_names, ['jpg'])
+
+    # ensure that the destination directory exists
+    os.makedirs('data', exist_ok=True)
 
     # save images, masks, and mappings
     print('Saving images and mappings...')

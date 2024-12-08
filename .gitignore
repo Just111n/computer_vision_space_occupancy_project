@@ -8,3 +8,7 @@
 # Data
 **/mit_indoor/
 **/data/
+
+# YOLO
+/runs
+*.pt
