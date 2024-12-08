@@ -5,6 +5,7 @@ import os
 import json
 import yaml
 from ultralytics import YOLO
+import shutil
 
 def prepare_dir(dir: str):
     """
@@ -126,9 +127,6 @@ if __name__ == '__main__':
     model = YOLO('yolo11n.pt')
     print(type(model))
 
-    metrics = model.val(data='data.yaml', epochs=10, batch=16)
-    print('Original:', metrics.box.maps)
-
     names = batch_get_filenames_from_dir('../data/images')
     images = batch_read_images_from_dir('../data/images')
     masks = batch_read_masks_from_dir('../data/masks')
@@ -143,7 +141,12 @@ if __name__ == '__main__':
     for dset in masks.keys():
         write_yolo_annotations(names[dset], masks[dset], mappings[dset], f'../data/labels/{dset}', classes_dict)
 
+    shutil.copytree('../data', './data', dirs_exist_ok=True)
+
     create_yaml_config('../data/images/train', '../data/images/val', classes_ls)
+
+    metrics = model.val(data='data.yaml', epochs=10, batch=16)
+    print('Original:', metrics.box.maps)
 
     model.train(data='data.yaml', epochs=10, batch=16, save=False, name='custom_yolo11n')
     metrics = model.val(data='data.yaml', epochs=10, batch=16)
