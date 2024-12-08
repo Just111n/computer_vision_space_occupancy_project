@@ -148,7 +148,9 @@ if __name__ == '__main__':
     metrics = model.val(data='data.yaml', epochs=10, batch=16)
     print('Original:', metrics.box.maps)
 
-    model.train(data='data.yaml', epochs=10, batch=16, save=False, name='custom_yolo11n')
+    # device = 'cpu'
+    device = 0      # gpu
+    model.train(data='data.yaml', epochs=10, batch=16, save=False, name='custom_yolo11n', device=device)
     metrics = model.val(data='data.yaml', epochs=10, batch=16)
     print('Finetuned:', metrics.box.maps)
     # model.export(format='onnx')
