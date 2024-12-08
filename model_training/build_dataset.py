@@ -97,17 +97,31 @@ def batch_read_images(img_fp_ls: list[str]) -> tuple[list[str], list[np.ndarray]
     # read images from list of filepaths
     img_ls = [cv2.imread(fp) for fp in img_fp_ls]
 
+    return img_ls
+
+def remove_broken_images(img_ls: list[np.ndarray]):
     # identify invalid images (NoneType)
     num_invalid = sum(1 for img in img_ls if img is None)
 
-    # filter out invalid images and the corresponding filepaths
-    fp_img_ls = [(fp, img) for fp, img in zip(img_fp_ls, img_ls) if img is not None]
+    # filter out invalid images and the corresponding XML filepaths
+    out_img_ls = [img for img in img_ls if img is not None]
+    if num_invalid > 0:
+        print(f'Removed {num_invalid} invalid image' + ('s' if num_invalid > 1 else ''))
+
+    return out_img_ls
+
+def remove_broken_images_with_xml_fp(img_ls: list[np.ndarray], xml_fp_ls: list[str]):
+    # identify invalid images (NoneType)
+    num_invalid = sum(1 for img in img_ls if img is None)
+
+    # filter out invalid images and the corresponding XML filepaths
+    img_xml_ls = [(img, xml_fp) for img, xml_fp in zip(img_ls, xml_fp_ls) if img is not None]
     if num_invalid > 0:
         print(f'Removed {num_invalid} invalid image' + ('s' if num_invalid > 1 else ''))
     
-    out_fp_ls, out_img_ls = unzip(fp_img_ls)
+    out_img_ls, out_xml_fp_ls = unzip(img_xml_ls)
 
-    return out_fp_ls, out_img_ls
+    return out_img_ls, out_xml_fp_ls
 
 def xml_to_mask_map(img: np.ndarray, ann_xml: str) -> tuple[np.ndarray, dict[int, str]]:
     """
@@ -355,9 +369,14 @@ if __name__ == '__main__':
 
     # read images from dataset
     print('Reading images...')
-    train_img_fp_ls, train_img_ls = batch_read_images(train_img_fp_ls)
-    val_img_fp_ls, val_img_ls = batch_read_images(val_img_fp_ls)
-    test_img_fp_ls, test_img_ls = batch_read_images(test_img_fp_ls)
+    train_img_ls = batch_read_images(train_img_fp_ls)
+    val_img_ls = batch_read_images(val_img_fp_ls)
+    test_img_ls = batch_read_images(test_img_fp_ls)
+
+    # remove images that were not read properly
+    train_img_ls, train_ann_fp_ls = remove_broken_images_with_xml_fp(train_img_ls, train_ann_fp_ls)
+    val_img_ls, val_ann_fp_ls = remove_broken_images_with_xml_fp(val_img_ls, val_ann_fp_ls)
+    test_img_ls = remove_broken_images(test_img_ls)
 
     # convert xml to masks and mappings
     print('Generating masks and mappings from XML...')
