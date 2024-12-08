@@ -84,6 +84,23 @@ def get_train_val_test_filepaths(src_dir: str, img_subdir: str, ann_subdir: str,
 
     return train_img_fp_ls, train_ann_fp_ls, val_img_fp_ls, val_ann_fp_ls, test_img_fp_ls
 
+def batch_get_train_val_test_filepaths(src_dir: str, img_subdir: str, ann_subdir: str, dset_names: list[str]):
+    train_img_fp_ls = []
+    train_ann_fp_ls = []
+    val_img_fp_ls = []
+    val_ann_fp_ls = []
+    test_img_fp_ls = []
+
+    for dset in dset_names:
+        a,b,c,d,e = get_train_val_test_filepaths(src_dir, img_subdir, ann_subdir, dset)
+        train_img_fp_ls += a
+        train_ann_fp_ls += b
+        val_img_fp_ls += c
+        val_ann_fp_ls += d
+        test_img_fp_ls += e
+
+    return train_img_fp_ls, train_ann_fp_ls, val_img_fp_ls, val_ann_fp_ls, test_img_fp_ls
+
 def batch_read_images(img_fp_ls: list[str]) -> tuple[list[str], list[np.ndarray]]:
     """
     Read images from list of file paths using `cv2.imread`, filter out any invalid images (NoneType), and return a
@@ -152,7 +169,7 @@ def xml_to_mask_map(img: np.ndarray, ann_xml: str) -> tuple[np.ndarray, dict[int
         obj_name = obj.find('name').text.strip()
 
         # check if object is related to chair or person (singular)
-        is_chair = ('chair' in obj_name and 'chairs' not in obj_name) or obj_name == 'chiar'
+        is_chair = ('chair' in obj_name and 'chairs' not in obj_name and 'person' not in obj_name) or obj_name == 'chiar'
         is_person = 'person' in obj_name
 
         if is_chair or is_person:
@@ -335,37 +352,25 @@ def prepare_dir(dir: str):
     os.makedirs(dir, exist_ok=True)
 
 if __name__ == '__main__':
-    # initialise terminal argument parser
-    parser = argparse.ArgumentParser()
-
-    # add argument fields
-    parser.add_argument('--src', required=False, help='Source directory path')
-    parser.add_argument('--sub', required=False, help='Sub-directory that contains the data files')
-
-    # parse arguments
-    args = parser.parse_args()
-
-    # check if both src and sub are None
-    # if so, use default values
-    use_default = args.src is None and args.sub is None
-
-    # change None input to empty string
-    src = '' if args.src is None else args.src
-    sub = '' if args.sub is None else args.sub
-
     # define variables
-    src_dir = '../mit_indoor' if use_default else src
+    src_dir = '../mit_indoor'
     dst_dir = './data'
     img_dir = 'Images'
     ann_dir = 'Annotations'
-    dset_name = 'meeting_room' if use_default else sub
+    dset_names = [
+        'meeting_room',
+        'classroom',
+        'office',
+        'auditorium',
+        'inside_bus',
+        'library',
+        'tv_studio',
+    ]
 
-    if use_default:
-        print(f'Using defaults: src_dir={src_dir}, dset_name={dset_name}')
 
     # split the dataset to train-val-test
     print('Splitting dataset...')
-    train_img_fp_ls, train_ann_fp_ls, val_img_fp_ls, val_ann_fp_ls, test_img_fp_ls = get_train_val_test_filepaths(src_dir, img_dir, ann_dir, dset_name)
+    train_img_fp_ls, train_ann_fp_ls, val_img_fp_ls, val_ann_fp_ls, test_img_fp_ls = batch_get_train_val_test_filepaths(src_dir, img_dir, ann_dir, dset_names)
 
     # read images from dataset
     print('Reading images...')

@@ -134,10 +134,11 @@ if __name__ == '__main__':
     masks = batch_read_masks_from_dir('./data/masks')
     mappings = batch_read_mappings_from_dir('./data/mappings')
 
-    data_unique_classes = get_unique_class_names_from_map(mappings)
-    yolo_unique_classes = list(base_model.names.values())
-    new_classes = sorted(list(set(data_unique_classes) - set(yolo_unique_classes)))
-    classes_ls = yolo_unique_classes + new_classes
+    # data_unique_classes = get_unique_class_names_from_map(mappings)
+    # yolo_unique_classes = list(base_model.names.values())
+    # new_classes = sorted(list(set(data_unique_classes) - set(yolo_unique_classes)))
+    # classes_ls = yolo_unique_classes + new_classes
+    classes_ls = get_unique_class_names_from_map(mappings)
     classes_dict = {i: cls for i, cls in enumerate(classes_ls)}
     
     for dset in masks.keys():
@@ -145,12 +146,12 @@ if __name__ == '__main__':
 
     create_yaml_config('../data/images/train', '../data/images/val', classes_ls)
 
-    base_metrics = base_model.val(data='data.yaml', epochs=20, batch=16, save=False, name='yolo11n')
-    print('Original:', base_metrics.box.maps)
+    base_metrics = base_model.val(data='data.yaml', epochs=20, batch=32, save=False, name='yolo11n')
+    print('Original:', base_metrics.map)
 
     device = 0 if torch.cuda.is_available() else 'cpu'     # use GPU if available, otherwise use CPU
     fine_tuned_model = YOLO('yolo11n.pt')
-    fine_tuned_model.train(data='data.yaml', epochs=20, batch=16, save=False, name='custom_yolo11n', device=device)
-    fine_tuned_metrics = fine_tuned_model.val(data='data.yaml', epochs=20, batch=16, save=False, name='custom_yolo11n')
-    print('Finetuned:', fine_tuned_metrics.box.maps)
-    fine_tuned_model.export(format='torch')
+    fine_tuned_model.train(data='data.yaml', epochs=20, batch=16, save=True, name='custom_yolo11n', device=device)
+    fine_tuned_metrics = fine_tuned_model.val(data='data.yaml', epochs=20, batch=32, save=False, name='custom_yolo11n')
+    print('Finetuned:', fine_tuned_metrics.map)
+    # fine_tuned_model.export(format='torch')
