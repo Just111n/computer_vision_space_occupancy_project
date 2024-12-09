@@ -111,7 +111,7 @@ def write_yolo_annotations(name_ls: list[str], mask_ls: list[np.ndarray], mappin
             label_file.write('\n'.join(annotation_lines))
             label_file.close()
 
-def create_yaml_config(img_train_path: str, img_val_path: str, class_ls: list[str]):
+def create_yaml_config(img_train_path: str, img_val_path: str, class_ls: list[str], dst_path: str = 'data.yaml'):
     config = {
         'train': img_train_path,
         'val': img_val_path,
@@ -119,7 +119,7 @@ def create_yaml_config(img_train_path: str, img_val_path: str, class_ls: list[st
         'names': class_ls
     }
 
-    with open('data.yaml', 'w') as yaml_file:
+    with open(dst_path, 'w') as yaml_file:
         yaml.dump(config, yaml_file, default_flow_style=False)
         yaml_file.close()
 
@@ -146,12 +146,8 @@ if __name__ == '__main__':
 
     create_yaml_config('../data/images/train', '../data/images/val', classes_ls)
 
-    base_val_results = base_model.val(data='data.yaml', epochs=20, batch=32, save=False, name='yolo11n')
-    print('Original:', base_val_results.map)
-
     device = 0 if torch.cuda.is_available() else 'cpu'     # use GPU if available, otherwise use CPU
+
     custom_model = YOLO('yolo11n.pt')
     custom_model.train(data='data.yaml', epochs=20, batch=16, save=True, name='custom_yolo11n', device=device)
-    custom_val_results = custom_model.val(data='data.yaml', epochs=20, batch=32, save=False, name='custom_yolo11n')
-    print('Finetuned:', custom_val_results.map)
-    # custom_model.export(format='torch')
+    custom_val_results = custom_model.val(data='data.yaml', device=device)
