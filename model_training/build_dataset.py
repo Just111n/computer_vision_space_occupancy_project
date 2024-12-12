@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from sklearn.model_selection import train_test_split
 import json
-import argparse
+import shutil
 
 def unzip(ls: list[tuple]):
     """
@@ -262,7 +262,7 @@ def clean_mappings(map_ls: list[dict[int, str]]):
     return out_map_ls
 
 def remove_unlabeled_data(img_ls: list[np.ndarray], mask_ls: list[np.ndarray], map_ls: list[dict[int, str]]):
-    new_zip = [(img, mask, mapping) for img, mask, mapping in zip(img_ls, mask_ls, map_ls)if len(mapping) > 0]
+    new_zip = [(img, mask, mapping) for img, mask, mapping in zip(img_ls, mask_ls, map_ls) if len(mapping) > 0]
     return unzip(new_zip)
 
 def append_file_ext(filename_ls: list[str], ext_ls: list[str]):
@@ -345,8 +345,7 @@ def prepare_dir(dir: str):
     """
     if os.path.isdir(dir):
         try:
-            for file in os.listdir(dir):
-                os.remove(os.path.join(dir, file))
+            shutil.rmtree(dir)
         except Exception as e:
             print(f'Error removing {dir}: {e}')
     os.makedirs(dir, exist_ok=True)
@@ -359,13 +358,17 @@ if __name__ == '__main__':
     ann_dir = 'Annotations'
     dset_names = [
         'meeting_room',
-        'classroom',
-        'office',
         'auditorium',
-        'inside_bus',
         'library',
+        'inside_bus',
         'tv_studio',
+        'fastfood_restaurant',
         'computerroom',
+        'inside_subway',
+        'subway',
+        'airport_inside',
+        'casino',
+        'restaurant',
     ]
 
 

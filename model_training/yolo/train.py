@@ -22,8 +22,7 @@ def prepare_dir(dir: str):
     """
     if os.path.isdir(dir):
         try:
-            for file in os.listdir(dir):
-                os.remove(os.path.join(dir, file))
+            shutil.rmtree(dir)
         except Exception as e:
             print(f'Error removing {dir}: {e}')
     os.makedirs(dir, exist_ok=True)
@@ -33,7 +32,7 @@ def batch_get_filenames_from_dir(src_dir: str):
 
     out = dict()
     for dn, dp in subdir_names_paths:
-        name_ls = [fn.split('.')[0] for fn in os.listdir(dp)]
+        name_ls = [fn.split('.')[0] for fn in sorted(os.listdir(dp))]
         out[dn] = name_ls
     
     return out
@@ -43,8 +42,8 @@ def batch_read_images_from_dir(src_dir: str):
 
     out = dict()
     for dn, dp in subdir_names_paths:
-        img_ls = [cv2.imread(os.path.join(dp, fn)) for fn in os.listdir(dp)]
-        img_ls = [img for img in img_ls if img is not None]
+        img_ls = [cv2.imread(os.path.join(dp, fn)) for fn in sorted(os.listdir(dp))]
+        # img_ls = [img for img in img_ls if img is not None]
         out[dn] = img_ls
     
     return out
@@ -54,8 +53,8 @@ def batch_read_masks_from_dir(src_dir: str):
 
     out = dict()
     for dn, dp in subdir_names_paths:
-        mask_ls = [cv2.imread(os.path.join(dp, fn), cv2.IMREAD_GRAYSCALE) for fn in os.listdir(dp)]
-        mask_ls = [mask for mask in mask_ls if mask is not None]
+        mask_ls = [cv2.imread(os.path.join(dp, fn), cv2.IMREAD_GRAYSCALE) for fn in sorted(os.listdir(dp))]
+        # mask_ls = [mask for mask in mask_ls if mask is not None]
         out[dn] = mask_ls
     
     return out
@@ -66,7 +65,7 @@ def batch_read_mappings_from_dir(src_dir: str):
     out = dict()
     for dn, dp in subdir_names_paths:
         json_ls = []
-        for fn in os.listdir(dp):
+        for fn in sorted(os.listdir(dp)):
             with open(os.path.join(dp, fn), 'r') as json_file:
                 mapping = json.load(json_file)
                 json_file.close()
@@ -127,7 +126,10 @@ if __name__ == '__main__':
     # model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
     base_model = YOLO('yolo11n.pt')
 
-    shutil.copytree('../data', './data', dirs_exist_ok=True)
+    main_data_dir = '../data'
+    yolo_data_dir = './data'
+    prepare_dir(yolo_data_dir)
+    shutil.copytree(main_data_dir, yolo_data_dir, dirs_exist_ok=True)
 
     names = batch_get_filenames_from_dir('./data/images')
     images = batch_read_images_from_dir('./data/images')
@@ -148,6 +150,7 @@ if __name__ == '__main__':
 
     device = 0 if torch.cuda.is_available() else 'cpu'     # use GPU if available, otherwise use CPU
 
-    custom_model = YOLO('yolo11n.pt')
-    custom_model.train(data='data.yaml', epochs=20, batch=16, save=True, name='custom_yolo11n', device=device)
-    custom_val_results = custom_model.val(data='data.yaml', device=device)
+    model_name = 'yolo11l'
+    custom_model = YOLO(f'{model_name}.pt')
+    custom_model.train(data='data.yaml', epochs=20, batch=16, lr0=1e-5, optimizer='adam', save=True, name=f'custom_{model_name}', device=device, project='yolo_models/train')
+    custom_val_results = custom_model.val(data='data.yaml', device=device, project='yolo_models/val')
