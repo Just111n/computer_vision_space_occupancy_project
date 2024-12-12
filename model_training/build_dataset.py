@@ -362,12 +362,12 @@ if __name__ == '__main__':
         'library',
         'inside_bus',
         'tv_studio',
-        'fastfood_restaurant',
+        # 'fastfood_restaurant',
         'computerroom',
         'inside_subway',
-        'subway',
-        'airport_inside',
-        'casino',
+        # 'subway',
+        # 'airport_inside',
+        # 'casino',
         'restaurant',
     ]
 
