@@ -2,6 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for
 import os
 from cv import load_model, process_image_with_model  # Import the functions from cv.py
 
+import torch
+from transformers import SegformerForSemanticSegmentation
+from torchvision import transforms
+from PIL import Image
+from test import apply_segmentation_model
+
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads/'  # Folder to save uploaded images
 
@@ -11,6 +17,28 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Load the model once when the app starts
 model = load_model()
+
+
+# Load the model once when the app starts
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  # Automatically select GPU or CPU
+semantic_segnmentation_model = SegformerForSemanticSegmentation.from_pretrained("nvidia/segformer-b0-finetuned-ade-512-512")
+num_classes = 3
+semantic_segnmentation_model.decode_head.classifier = torch.nn.Conv2d(256, num_classes, kernel_size=(1, 1))
+semantic_segnmentation_model.config.num_labels = num_classes
+
+# Load custom checkpoint
+checkpoint = torch.load("final_model.pth", map_location=device)
+semantic_segnmentation_model.load_state_dict(checkpoint['model_state_dict'])
+semantic_segnmentation_model.eval()
+semantic_segnmentation_model.to(device)
+
+# Define the transformation pipeline
+transform = transforms.Compose([
+    transforms.Resize((256, 256)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+
 
 @app.route('/')
 def home():
@@ -30,20 +58,49 @@ def process_image():
     image.save(image_path)
 
     print("Image saved to:", image_path)
-    max_people = int(request.form.get("max_people"))
     
-    # Placeholder for image processing (occupancy analysis)
-    # You can add your YOLO/CSRNet model processing here
-    # Use the model to process the image
-    occupancy_data = process_image_with_model(image_path, model, max_people)
+    model_selected = request.form.get("model_selected")
+    
+    
+    
+    
 
-    # TODO Put Spatial Occupancy calculations here
+   
 
-    data = {
-        "image_path": image_path,
-        "occupancy_data": occupancy_data,
-        "max_people": max_people
-    }
+    
+
+    if model_selected == "yolo":
+        occupancy_data = process_image_with_model(image_path, model )
+
+        
+        data = {
+            "occupancy_data": occupancy_data,
+        }
+
+
+    if model_selected == "semantic_segmentation":
+        # Apply segmentation model
+        try:
+            mask, original_image = apply_segmentation_model(image_path, semantic_segnmentation_model, transform, device)
+            
+            # Save the mask for visualization
+            output_path = os.path.join(app.config['UPLOAD_FOLDER'], 'output_' + image.filename)
+            mask_image = Image.fromarray((mask * 255 / mask.max()).astype('uint8'))
+            mask_image.save(output_path)
+
+            # occupancy_data =  {'count': occupancy_count, 'percentage': occupancy_count/chairs*100, 'seats': chairs}
+
+            occupancy_data =  {'count': 9, 'percentage': 9/10*100, 'seats': 10}
+
+            print(output_path)
+
+            return render_template('result.html', data={
+            
+                "occupancy_data": occupancy_data,
+            }, image_path=output_path, image_filename=image.filename)
+        except Exception as e:
+            return f"An error occurred: {e}", 500
+    
 
     return render_template('result.html', data=data, image_path=image_path, image_filename=image.filename)
 
