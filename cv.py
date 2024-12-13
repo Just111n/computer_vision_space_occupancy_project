@@ -17,10 +17,6 @@ def load_model():
     # TODO: return model here
     model_dir = "./ml_models/yolo"
     model_fn = "custom_yolo11m_aug.pt"
-    # classes_fn = 'coco.txt'
-    # net = cv2.dnn.readNetFromONNX(os.path.join(model_dir, model_fn))
-    # classes_file = open(os.path.join(model_dir, classes_fn), "r")
-    # classes = classes_file.read().split('\n')
 
     # model = (net, classes)
     model = YOLO(os.path.join(model_dir, model_fn))

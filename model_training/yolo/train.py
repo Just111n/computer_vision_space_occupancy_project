@@ -135,11 +135,7 @@ if __name__ == '__main__':
     images = batch_read_images_from_dir('./data/images')
     masks = batch_read_masks_from_dir('./data/masks')
     mappings = batch_read_mappings_from_dir('./data/mappings')
-
-    # data_unique_classes = get_unique_class_names_from_map(mappings)
-    # yolo_unique_classes = list(base_model.names.values())
-    # new_classes = sorted(list(set(data_unique_classes) - set(yolo_unique_classes)))
-    # classes_ls = yolo_unique_classes + new_classes
+    
     classes_ls = get_unique_class_names_from_map(mappings)
     classes_dict = {i: cls for i, cls in enumerate(classes_ls)}
     
