@@ -67,7 +67,15 @@
       <h2>Occupancy Analysis Results</h2>
       <p><strong>Occupancy Count:</strong> {{ data.occupancy_data.count }}</p>
       <p><strong>Maximum Capacity:</strong> {{ data.occupancy_data.seats }}</p>
-      <p><strong>Percentage Capacity:</strong> {{ data.occupancy_data.percentage }}%</p>
+      <p>
+        <strong>Percentage Capacity:</strong> {{ data.occupancy_data.percentage
+        }}%
+      </p>
+      <p>
+        <strong>Status:</strong> There is space for {{ data.occupancy_data.seats
+        - data.occupancy_data.count }} more people to join.
+      </p>
+
       <img
         src="{{ url_for('static', filename='outputs/output_' + image_filename) }}"
         alt="Processed Image"
