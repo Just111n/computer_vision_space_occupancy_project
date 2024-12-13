@@ -265,6 +265,12 @@ def remove_unlabeled_data(img_ls: list[np.ndarray], mask_ls: list[np.ndarray], m
     new_zip = [(img, mask, mapping) for img, mask, mapping in zip(img_ls, mask_ls, map_ls) if len(mapping) > 0]
     return unzip(new_zip)
 
+def batch_img_mask_hflip(img_ls: list[np.ndarray], mask_ls: list[np.ndarray]):
+    flip_img_ls = [cv2.flip(img, 1) for img in img_ls]
+    flip_mask_ls = [cv2.flip(mask, 1) for mask in mask_ls]
+
+    return flip_img_ls, flip_mask_ls
+
 def append_file_ext(filename_ls: list[str], ext_ls: list[str]):
     """
     Append a list of file extensions to a list of filenames.
@@ -362,12 +368,12 @@ if __name__ == '__main__':
         'library',
         'inside_bus',
         'tv_studio',
-        # 'fastfood_restaurant',
+        'fastfood_restaurant',
         'computerroom',
         'inside_subway',
-        # 'subway',
-        # 'airport_inside',
-        # 'casino',
+        'subway',
+        'airport_inside',
+        'casino',
         'restaurant',
     ]
 
@@ -400,6 +406,13 @@ if __name__ == '__main__':
     print('Cleaning mappings...')
     train_map_ls = clean_mappings(train_map_ls)
     val_map_ls = clean_mappings(val_map_ls)
+
+    # data augmentation: add horizontally flipped images to training set
+    print('Augmenting data...')
+    train_flip_img_ls, train_flip_mask_ls = batch_img_mask_hflip(train_img_ls, train_mask_ls)
+    train_img_ls.extend(train_flip_img_ls)
+    train_mask_ls.extend(train_flip_mask_ls)
+    train_map_ls.extend(train_map_ls)   # augmented data have identical mappings
 
     # generate file names
     print('Generating file names...')

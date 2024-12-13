@@ -14,8 +14,6 @@ Each dataset (train/val/test) consists of images, corresponding masks and class 
 
 **By default**, the script will attempt to build the datasets from `../mit_indoor/` directory, which contains image and annotation data for image segmentation and object detection tasks.
 
-For the purpose of this project, the script will also default to extracting data from the `meeting_room` sub-directory.
-
 The `../mit_indoor/` directory (or any input data directory) is expected to have the following structure:
 
 ```text
@@ -44,12 +42,6 @@ To build default dataset:
 
 ```bash
 python build_dataset.py 
-```
-
-To build a custom dataset:
-
-```bash
-python build_dataset.py --src <src_dir_path> --sub <sub_dir_name>
 ```
 
 The script will store the generated datasets in the `./data` directory. The directory will have the following structure:

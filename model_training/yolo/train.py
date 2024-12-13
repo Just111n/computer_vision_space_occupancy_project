@@ -123,14 +123,14 @@ def create_yaml_config(img_train_path: str, img_val_path: str, class_ls: list[st
         yaml_file.close()
 
 if __name__ == '__main__':
-    # model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
-    base_model = YOLO('yolo11n.pt')
-
     main_data_dir = '../data'
     yolo_data_dir = './data'
+
+    print('Copying pre-processed data...')
     prepare_dir(yolo_data_dir)
     shutil.copytree(main_data_dir, yolo_data_dir, dirs_exist_ok=True)
 
+    print('Extracting data...')
     names = batch_get_filenames_from_dir('./data/images')
     images = batch_read_images_from_dir('./data/images')
     masks = batch_read_masks_from_dir('./data/masks')
@@ -143,14 +143,20 @@ if __name__ == '__main__':
     classes_ls = get_unique_class_names_from_map(mappings)
     classes_dict = {i: cls for i, cls in enumerate(classes_ls)}
     
+    print('Writing YOLO annotations...')
     for dset in masks.keys():
         write_yolo_annotations(names[dset], masks[dset], mappings[dset], f'./data/labels/{dset}', classes_dict)
 
+    print('Writing YAML config...')
     create_yaml_config('../data/images/train', '../data/images/val', classes_ls)
 
     device = 0 if torch.cuda.is_available() else 'cpu'     # use GPU if available, otherwise use CPU
 
-    model_name = 'yolo11l'
+    results_dir = 'yolo_models'
+    model_name = 'yolo11l'      # n/s/m/l
+    suffix = 'aug'
+
+    print(f'Training {model_name}_{suffix}...')
     custom_model = YOLO(f'{model_name}.pt')
-    custom_model.train(data='data.yaml', epochs=20, batch=16, lr0=1e-5, optimizer='adam', save=True, name=f'custom_{model_name}', device=device, project='yolo_models/train')
-    custom_val_results = custom_model.val(data='data.yaml', device=device, project='yolo_models/val')
+    custom_model.train(data='data.yaml', epochs=20, batch=16, lr0=1e-5, optimizer='adam', save=True, name=f'custom_{model_name}_{suffix}', device=device, project=f'{results_dir}/train')
+    custom_val_results = custom_model.val(data='data.yaml', device=device, project=f'{results_dir}/val', save_json=True)
