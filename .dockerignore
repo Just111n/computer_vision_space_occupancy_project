@@ -1,0 +1,25 @@
+
+*.pyc
+*.pyo
+*.log
+*.mp4
+*.avi
+*.jpg
+*.png
+
+
+/static/uploads
+/static/outputs
+/__pycache__
+
+# Environments
+.env
+.venv
+
+# Data
+**/mit_indoor/
+**/data/
+
+# YOLO
+**/runs
+**/yolo_models

@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    container_name: flask_gunicorn_app
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+    restart: always
+    command: gunicorn -w 4 -b 0.0.0.0:5000 app:app
