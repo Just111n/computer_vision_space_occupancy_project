@@ -1,9 +1,9 @@
 # cv.py
 import cv2
-import torch
+# import torch
 # Additional imports as needed (e.g., for YOLO, CSRNet)
 import time
-import numpy as np
+# import numpy as np
 import os
 from ultralytics import YOLO
 
@@ -74,4 +74,10 @@ def process_image_with_model(image_path, model):
     print(f"Processed image at {result_path} and found {occupancy_count} individuals and {chairs} chairs.")
     
     # Example of returning data (expand this with heatmaps or density maps if needed)
-    return {'count': occupancy_count, 'percentage': occupancy_count/chairs*100, 'seats': chairs}
+
+    if chairs == 0:
+        percentage = 0  # or another default value like None
+    else:
+        percentage = (occupancy_count / chairs) * 100
+
+    return {'count': occupancy_count, 'percentage': percentage, 'seats': chairs}

@@ -2,10 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for
 import os
 from cv import load_model, process_image_with_model  # Import the functions from cv.py
 
-import torch
-from transformers import SegformerForSemanticSegmentation
-from torchvision import transforms
-from PIL import Image
+# import torch
+# from transformers import SegformerForSemanticSegmentation
+# from torchvision import transforms
+# from PIL import Image
 # from test import apply_segmentation_model
 
 app = Flask(__name__)
